@@ -17,14 +17,14 @@ public final class Control {
     private final BiMap<Player, Player> controllers = HashBiMap.create();
     private int taskNum;
 
-    public Control(Main plugin) {
+    public Control(final Main plugin) {
         this.plugin = plugin;
         this.scheduler = plugin.getServer().getScheduler();
     }
 
     public void enable() {
         taskNum = scheduler.scheduleSyncRepeatingTask(plugin, () -> {
-            for (Map.Entry<Player, Player> entry : controllers.entrySet()) {
+            for (final Map.Entry<Player, Player> entry : controllers.entrySet()) {
                 control(entry.getKey(), entry.getValue());
             }
         }, 0, 1);
@@ -34,15 +34,15 @@ public final class Control {
         scheduler.cancelTask(taskNum);
     }
 
-    public Optional<Player> getController(Player target) {
+    public Optional<Player> getController(final Player target) {
         return Optional.ofNullable(controllers.inverse().get(target));
     }
 
-    public Optional<Player> getTarget(Player controller) {
+    public Optional<Player> getTarget(final Player controller) {
         return Optional.ofNullable(controllers.get(controller));
     }
 
-    public void controlTarget(Player controller, Player target) {
+    public void controlTarget(final Player controller, final Player target) {
         controller.teleportAsync(target.getLocation());
         controller.getInventory().setContents(
                 target.getInventory().getContents()
@@ -50,11 +50,11 @@ public final class Control {
         controllers.put(controller, target);
     }
 
-    public Optional<Player> stopControlling(Player controller) {
+    public Optional<Player> stopControlling(final Player controller) {
         return Optional.ofNullable(controllers.remove(controller));
     }
 
-    private void control(Player controller, Player target) {
+    private static void control(final Player controller, final Player target) {
         target.setGameMode(GameMode.SPECTATOR);
         target.setSpectatorTarget(controller);
     }
