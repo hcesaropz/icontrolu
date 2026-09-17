@@ -28,6 +28,7 @@ public final class Control {
                 tick(entry.getKey(), entry.getValue());
             }
         }, 0, 1);
+        plugin.getServer().getPluginManager().registerEvents(new ControlListener(this), plugin);
     }
 
     public void disable() {
