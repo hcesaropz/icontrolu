@@ -54,7 +54,7 @@ public final class CommandIcu {
                 .then(literal("stop")
                         .executes(ctx -> {
                             final Player controller = getSender(ctx);
-                            final Player target = controlModule.stopControlling(controller)
+                            final Player target = controlModule.stopControl(controller)
                                     .orElseThrow(EX_NOT_CONTROLLING::create);
                             controller.sendMessage(
                                     Component.text("You are no longer controlling \"")
@@ -99,7 +99,7 @@ public final class CommandIcu {
                                     }
 
                                     // if all above checks pass, control the target
-                                    controlModule.controlTarget(controller, target);
+                                    controlModule.control(controller, target);
                                     controller.sendMessage(
                                             Component.text("You are now controlling \"")
                                                     .append(Component.text(target.getName()))

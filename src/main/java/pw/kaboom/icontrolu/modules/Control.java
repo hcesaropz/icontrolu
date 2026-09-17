@@ -25,7 +25,7 @@ public final class Control {
     public void enable() {
         taskNum = scheduler.scheduleSyncRepeatingTask(plugin, () -> {
             for (final Map.Entry<Player, Player> entry : controllers.entrySet()) {
-                control(entry.getKey(), entry.getValue());
+                tick(entry.getKey(), entry.getValue());
             }
         }, 0, 1);
     }
@@ -42,7 +42,7 @@ public final class Control {
         return Optional.ofNullable(controllers.get(controller));
     }
 
-    public void controlTarget(final Player controller, final Player target) {
+    public void control(final Player controller, final Player target) {
         controller.teleportAsync(target.getLocation());
         controller.getInventory().setContents(
                 target.getInventory().getContents()
@@ -50,11 +50,11 @@ public final class Control {
         controllers.put(controller, target);
     }
 
-    public Optional<Player> stopControlling(final Player controller) {
+    public Optional<Player> stopControl(final Player controller) {
         return Optional.ofNullable(controllers.remove(controller));
     }
 
-    private static void control(final Player controller, final Player target) {
+    private static void tick(final Player controller, final Player target) {
         target.setGameMode(GameMode.SPECTATOR);
         target.setSpectatorTarget(controller);
     }
