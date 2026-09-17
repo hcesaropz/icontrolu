@@ -7,11 +7,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import pw.kaboom.icontrolu.modules.ControlManager;
+import pw.kaboom.icontrolu.modules.Control;
 import pw.kaboom.icontrolu.modules.PlayerControl;
+
+import java.util.Optional;
 
 import static io.papermc.paper.command.brigadier.Commands.*;
 import static pw.kaboom.icontrolu.commands.arguments.PlayerOrUUIDArgumentType.getPlayer;
@@ -38,9 +39,9 @@ public final class CommandIcu {
             new SimpleCommandExceptionType(
                     new LiteralMessage("You may not control this player")
             );
-    private final PlayerControl controlModule;
+    private final Control controlModule;
 
-    public CommandIcu(final PlayerControl controlModule) {
+    public CommandIcu(final Control controlModule) {
         this.controlModule = controlModule;
     }
 
@@ -53,14 +54,8 @@ public final class CommandIcu {
                 .then(literal("stop")
                         .executes(ctx -> {
                             final Player controller = getSender(ctx);
-                            final Player target = controlModule.manager.removeController(
-                                    controller.getUniqueId()
-                            );
-
-                            if (target == null) {
-                                throw EX_NOT_CONTROLLING.create();
-                            }
-                            controlModule.scheduleVisibility(controller.getUniqueId());
+                            final Player target = controlModule.stopControlling(controller)
+                                    .orElseThrow(EX_NOT_CONTROLLING::create);
                             controller.sendMessage(
                                     Component.text("You are no longer controlling \"")
                                             .append(Component.text(target.getName()))
@@ -79,30 +74,32 @@ public final class CommandIcu {
                                     final Player target = getPlayer(ctx, "player");
                                     final Player controller = getSender(ctx);
 
+                                    // (obviously) you can't target yourself
                                     if (target == controller) {
                                         throw EX_TARGET_SELF.create();
                                     }
 
-                                    final ControlManager manager = controlModule.manager;
-                                    final Player otherTarget =
-                                            manager.getTarget(controller.getUniqueId());
-                                    if (otherTarget != null) {
-                                        throw EX_ALREADY_IN_CONTROL.create(otherTarget.getName());
+                                    // is target already controlled by sender
+                                    final Optional<Player> otherTarget =
+                                            controlModule.getTarget(controller);
+                                    if (otherTarget.isPresent()) {
+                                        throw EX_ALREADY_IN_CONTROL.create(
+                                                otherTarget.get().getName()
+                                        );
                                     }
 
-                                    if (manager.isTarget(target.getUniqueId())) {
+                                    // is target controlled by some other person
+                                    if (controlModule.getController(target).isPresent()) {
                                         throw EX_CONTROL_BY_OTHER.create(target.getName());
                                     }
 
+                                    // can the controller see the target
                                     if (!controller.canSee(target)) {
                                         throw EX_CANTSEE.create();
                                     }
 
-                                    controller.teleportAsync(target.getLocation());
-                                    controller.getInventory().setContents(
-                                            target.getInventory().getContents()
-                                    );
-                                    manager.control(controller, target);
+                                    // if all above checks pass, control the target
+                                    controlModule.controlTarget(controller, target);
                                     controller.sendMessage(
                                             Component.text("You are now controlling \"")
                                                     .append(Component.text(target.getName()))

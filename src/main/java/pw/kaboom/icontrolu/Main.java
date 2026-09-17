@@ -6,17 +6,18 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 import pw.kaboom.icontrolu.commands.CommandIcu;
+import pw.kaboom.icontrolu.modules.Control;
 import pw.kaboom.icontrolu.modules.PlayerControl;
 
 public final class Main extends JavaPlugin {
-    private final PlayerControl controlModule = new PlayerControl();
+    private final Control control = new Control(this);
 
     @Override
     public void onEnable() {
         /* Commands */
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands registrar = event.registrar();
-            final CommandIcu command = new CommandIcu(controlModule);
+            final CommandIcu command = new CommandIcu(control);
             final LiteralArgumentBuilder<CommandSourceStack> builder
                     = Commands.literal("icu");
             command.build(builder);
@@ -26,12 +27,11 @@ public final class Main extends JavaPlugin {
         });
 
         /* Modules */
-        controlModule.enable();
-        this.getServer().getPluginManager().registerEvents(controlModule, this);
+        control.enable();
     }
 
     @Override
     public void onDisable() {
-        controlModule.disable();
+        control.disable();
     }
 }
