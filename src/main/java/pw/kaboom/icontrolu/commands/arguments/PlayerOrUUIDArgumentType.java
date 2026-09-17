@@ -1,5 +1,6 @@
 package pw.kaboom.icontrolu.commands.arguments;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,9 +11,12 @@ import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.UUID;
 
+@CheckReturnValue
+@NullMarked
 public final class PlayerOrUUIDArgumentType implements
         CustomArgumentType<Player, EntitySelectorArgumentResolver> {
     public static Player getPlayer(final CommandContext<CommandSourceStack> context,
