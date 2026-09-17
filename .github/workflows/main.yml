@@ -1,4 +1,4 @@
-name: Maven CI
+name: Gradle CI
 on: [push, pull_request, workflow_dispatch]
 permissions: {}
 
@@ -17,15 +17,15 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
-          cache: maven
+          cache: gradle
 
-      - name: Build with Maven
-        run: mvn -B package
+      - name: Build with Gradle
+        run: ./gradlew build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          path: target/*.jar
+          path: build/libs/*.jar
           if-no-files-found: error
           archive: false
 
