@@ -48,6 +48,8 @@ public final class Control {
         controller.getInventory().setContents(
                 target.getInventory().getContents()
         );
+        // still need this here because ControlListener blocks switching gamemode
+        target.setGameMode(GameMode.SPECTATOR);
         controllers.put(controller, target);
     }
 
@@ -59,6 +61,7 @@ public final class Control {
         return Optional.ofNullable(controllers.inverse().remove(target));
     }
 
+    // TODO: probably unnecessary, we can just use PlayerStopSpectatingEntity
     private static void tick(final Player controller, final Player target) {
         target.setGameMode(GameMode.SPECTATOR);
         target.setSpectatorTarget(controller);
