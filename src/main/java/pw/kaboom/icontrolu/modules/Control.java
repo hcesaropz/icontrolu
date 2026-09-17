@@ -51,8 +51,12 @@ public final class Control {
         controllers.put(controller, target);
     }
 
-    public Optional<Player> stopControl(final Player controller) {
+    public Optional<Player> stopControlling(final Player controller) {
         return Optional.ofNullable(controllers.remove(controller));
+    }
+
+    public Optional<Player> stopBeingControlled(final Player target) {
+        return Optional.ofNullable(controllers.inverse().remove(target));
     }
 
     private static void tick(final Player controller, final Player target) {

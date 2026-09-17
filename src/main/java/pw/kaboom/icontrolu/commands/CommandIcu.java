@@ -54,7 +54,7 @@ public final class CommandIcu {
                 .then(literal("stop")
                         .executes(ctx -> {
                             final Player controller = getSender(ctx);
-                            final Player target = controlModule.stopControl(controller)
+                            final Player target = controlModule.stopControlling(controller)
                                     .orElseThrow(EX_NOT_CONTROLLING::create);
                             controller.sendMessage(
                                     Component.text("You are no longer controlling \"")
